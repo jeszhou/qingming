@@ -78,6 +78,33 @@ export default function App() {
   const [showPanel, setShowPanel] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const resetTrigger = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const downloadJSON = () => {
+    const dataStr = JSON.stringify(params, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'qingming-params.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          setParams(data);
+        } catch (error) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('qingming_params', JSON.stringify(params));
@@ -464,6 +491,15 @@ export default function App() {
             <div className="flex gap-2 pt-2 border-t">
               <button onClick={() => setIsPlaying(!isPlaying)} className={`flex-1 py-2 rounded-lg text-sm font-bold ${isPlaying ? 'bg-amber-100 text-amber-700' : 'bg-green-500 text-white'}`}>{isPlaying ? '暂停' : '开始'}</button>
               <button onClick={() => { setParams({...params, rainDensity: 0}); resetTrigger.current = true; }} className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg text-sm font-bold border border-red-100 hover:bg-red-100">清空雨水与星辰</button>
+            </div>
+
+            <div className="pt-2">
+              <button onClick={downloadJSON} className="w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-600">下载参数 JSON</button>
+            </div>
+
+            <input type="file" accept=".json" onChange={handleFileUpload} ref={fileInputRef} style={{display: 'none'}} />
+            <div className="pt-2">
+              <button onClick={() => fileInputRef.current?.click()} className="w-full bg-green-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-green-600">导入参数 JSON</button>
             </div>
           </div>
         </div>
