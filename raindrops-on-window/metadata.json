@@ -1,0 +1,5 @@
+{
+  "name": "Raindrops on Window",
+  "description": "A p5.js simulation of raindrops falling on a window.",
+  "requestFramePermissions": []
+}
