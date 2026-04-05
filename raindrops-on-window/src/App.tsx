@@ -70,13 +70,19 @@ export default function App() {
   const renderRef = useRef<HTMLDivElement>(null);
   const p5Ref = useRef<p5 | null>(null);
   
-  const [params, setParams] = useState(defaultParams);
+  const [params, setParams] = useState(() => {
+    const saved = localStorage.getItem('qingming_params');
+    return saved ? JSON.parse(saved) : defaultParams;
+  });
   const paramsRef = useRef(params);
   const [showPanel, setShowPanel] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const resetTrigger = useRef(false);
 
-  useEffect(() => { paramsRef.current = params; }, [params]);
+  useEffect(() => {
+    localStorage.setItem('qingming_params', JSON.stringify(params));
+    paramsRef.current = params;
+  }, [params]);
 
   useEffect(() => {
     if (p5Ref.current) {
